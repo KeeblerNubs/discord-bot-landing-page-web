@@ -1,361 +1,462 @@
-<!--
-  | Website designed by JstnLT (https://jstnlt.my.id)
-  | This project is open source: https://github.com/JastinXyz/discord-bot-landing-page-web
--->
-
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Your Bot - a Discord Bot</title>
-    <link rel="stylesheet" href="assets/css/bulma.min.css" />
-    <link rel="stylesheet" href="assets/css/style.css" />
+    <title>HostBot - a Discord Bot used For Zoom Meetings</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
     <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/animations/scale.css" />
-    
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
-      integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
 
-    <script src="assets/js/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+      /* Matrix canvas */
+      #matrixCanvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;               /* behind page content */
+        opacity: 0.45;            /* adjust visibility */
+        pointer-events: none;     /* allow clicks through */
+        background: transparent;
+      }
+
+      /* Ensure page content sits above canvas */
+      .content-wrapper {
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Make main sections semi-transparent so matrix can show through */
+      /* You can tune the alpha values to make the matrix stronger/weaker */
+      .hero.bg-base,
+      .section,
+      footer {
+        background-color: rgba(26, 38, 52, 0.75) !important;
+      }
+
+      /* Back-to-top on top of content */
+      #backtotop {
+        z-index: 1002;
+      }
+
+      /* Optional: slightly tint text backgrounds so readability is good */
+      .stats-card, .single-feature .column:first-child {
+        background: rgba(255,255,255,0.03);
+        border-radius: 8px;
+      }
+    </style>
   </head>
   <body>
-    <!-- Back To Top Start -->
-    <a id="backtotop" data-tippy-content="Back To Top.">
-      <i class="fa-solid fa-angle-up has-text-white fa-2xl mt-5"></i>
-    </a>
-    <!-- Back To Top End -->
+    <!-- Matrix Background Canvas -->
+    <canvas id="matrixCanvas" aria-hidden="true"></canvas>
 
-    <!-- Navbar Start -->
-    <nav
-      class="navbar is-fixed-top"
-      role="navigation"
-      aria-label="main navigation"
-    >
-      <div class="navbar-brand mt-2 mb-2">
-        <a class="navbar-item" href="#">
-          <strong>Your Bot</strong>
+    <div class="content-wrapper">
+      <!-- Back To Top Start -->
+      <a id="backtotop" data-tippy-content="Back To Top.">
+        <i class="fa-solid fa-angle-up has-text-white fa-2xl mt-5"></i>
+      </a>
+      <!-- Back To Top End -->
 
-          <!-- or if you want to use image -->
-          <!-- <img
-            src="image link or path"
-            width="112"
-            height="28"
-          /> -->
-        </a>
-
-        <a
-          role="button"
-          class="navbar-burger has-text-white"
-          data-target="navMenu"
-          aria-label="menu"
-          aria-expanded="false"
-        >
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-        </a>
-      </div>
-
-      <div id="navbarBasicExample" class="navbar-menu">
-        <div class="navbar-start">
-          <a href="#" class="navbar-item is-tab">
-            Home
+      <!-- Navbar Start -->
+      <nav
+        class="navbar is-fixed-top"
+        role="navigation"
+        aria-label="main navigation"
+      >
+        <div class="navbar-brand mt-2 mb-2">
+          <a class="navbar-item" href="#">
+            <strong>Your Bot</strong>
           </a>
 
-          <a href="#features" class="navbar-item is-tab">
-            Features
-          </a>
-
-          <a href="#stats" class="navbar-item is-tab">
-            Stats
-          </a>
-
-          <a href="#" class="navbar-item is-tab">
-            Docs
+          <a
+            role="button"
+            class="navbar-burger has-text-white"
+            data-target="navMenu"
+            aria-label="menu"
+            aria-expanded="false"
+          >
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
           </a>
         </div>
 
-        <div class="navbar-end">
-          <a href="#" class="navbar-item is-tab" target="_blank">
-            <i class="fa-brands fa-discord"></i>
-          </a>
-
-          <a href="#" class="navbar-item is-tab" target="_blank">
-            <i class="fa-brands fa-github"></i>
-          </a>
-
-          <div class="navbar-item">
-            <div class="buttons">
-              <a href="#" class="button is-blurple">
-                <strong
-                  ><i class="fa-solid fa-right-to-bracket mr-2"></i>
-                  Login</strong
-                >
-              </a>
-            </div>
+        <div id="navbarBasicExample" class="navbar-menu">
+          <div class="navbar-start">
+            <a href="#" class="navbar-item is-tab">Home</a>
+            <a href="#features" class="navbar-item is-tab">Features</a>
+            <a href="#stats" class="navbar-item is-tab">Stats</a>
+            <a href="#" class="navbar-item is-tab">Docs</a>
           </div>
-        </div>
-      </div>
-    </nav>
-    <!-- Navbar End -->
 
-    <!-- Hero Section Start -->
-    <section class="hero bg-base is-fullheight">
-      <div class="hero-body">
-        <div class="">
-          <div class="columns">
-            <div class="column mr-6 mt-12" data-aos="fade-up">
-              <p class="title has-text-white has-text-weight-bold">
-                Time to add [your bot] to your server.
-              </p>
-              <p class="subtitle has-text-grey-light is-size-6 mt-3">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              </p>
+          <div class="navbar-end">
+            <a href="#" class="navbar-item is-tab" target="_blank">
+              <i class="fa-brands fa-discord"></i>
+            </a>
+
+            <a href="#" class="navbar-item is-tab" target="_blank">
+              <i class="fa-brands fa-github"></i>
+            </a>
+
+            <div class="navbar-item">
               <div class="buttons">
-                <a href="#" class="button is-info">
-                  <strong>Add To Discord</strong>
-                </a>
-
-                <a href="#" class="button is-primary is-outlined">
-                  <strong><i class="fa-solid fa-crown"></i> Premium</strong>
+                <a href="#" class="button is-blurple">
+                  <strong><i class="fa-solid fa-right-to-bracket mr-2"></i> Login</strong>
                 </a>
               </div>
             </div>
-            <div class="column mt-6" data-aos="fade-left">
+          </div>
+        </div>
+      </nav>
+      <!-- Navbar End -->
+
+      <!-- Hero Section Start -->
+      <section class="hero bg-base is-fullheight">
+        <div class="hero-body">
+          <div class="">
+            <div class="columns">
+              <div class="column mr-6 mt-12" data-aos="fade-up">
+                <p class="title has-text-white has-text-weight-bold">
+                  Time to add [your bot] to your server.
+                </p>
+                <p class="subtitle has-text-grey-light is-size-6 mt-3">
+                  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                  eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>
+                <div class="buttons">
+                  <a href="#" class="button is-info">
+                    <strong>Add To Discord</strong>
+                  </a>
+
+                  <a href="#" class="button is-primary is-outlined">
+                    <strong><i class="fa-solid fa-crown"></i> Premium</strong>
+                  </a>
+                </div>
+              </div>
+              <div class="column mt-6" data-aos="fade-left">
+                <img
+                  class="image has-image-centered vert-move mt-4"
+                  src="assets/img/relaunch_day.svg"
+                  alt="hero image"
+                  style="width: 20rem;"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="has-text-centered" data-tippy-content="Scroll Down">
+          <a href="#features"><i class="fa-solid fa-circle-chevron-down fa-lg vert-move2 has-text-white"></i></a>
+        </div>
+      </section>
+      <!-- Hero Section End -->
+
+      <!-- Hero Waves Start -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+        <path
+          fill="#1a2634"
+          fill-opacity="1"
+          d="M0,288L24,261.3C48,235,96,181,144,154.7C192,128,240,128,288,149.3C336,171,384,213,432,202.7C480,192,528,128,576,133.3C624,139,672,213,720,213.3C768,213,816,139,864,101.3C912,64,960,64,1008,106.7C1056,149,1104,235,1152,240C1200,245,1248,171,1296,144C1344,117,1392,139,1416,149.3L1440,160L1440,0L1416,0C1392,0,1344,0,1296,0C1248,0,1200,0,1152,0C1104,0,1056,0,1008,0C960,0,912,0,864,0C816,0,768,0,720,0C672,0,624,0,576,0C528,0,480,0,432,0C384,0,336,0,288,0C240,0,192,0,144,0C96,0,48,0,24,0L0,0Z"
+        ></path>
+      </svg>
+      <!-- Hero Waves End -->
+
+      <!-- Features Section Start -->
+      <section id="features" class="section mt-6">
+        <div class="has-text-centered">
+          <h1 class="title lined">Features</h1>
+          <div class="line line-center blurple"></div>
+        </div>
+
+        <!-- single feature start (Left) -->
+        <div class="single-feature">
+          <div class="columns mt-6">
+            <div class="column mr-6">
+              <h4 class="title">Feature <span class="blurple">#1</span></h4>
+              <p class="subtitle mt-3">
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat.
+              </p>
+            </div>
+            <div class="column" data-aos="fade-left">
               <img
-                class="image has-image-centered vert-move mt-4"
-                src="assets/img/relaunch_day.svg"
-                alt="hero image"
-                style="width: 20rem;"
+                class="image has-image-centered"
+                src="assets/img/features1.svg"
+                alt="feature1 img"
+                style="width: 23rem;"
               />
             </div>
           </div>
         </div>
-      </div>
-      <div class="has-text-centered" data-tippy-content="Scroll Down">
-        <a href="#features"
-          ><i
-            class="fa-solid fa-circle-chevron-down fa-lg vert-move2 has-text-white"
-          ></i
-        ></a>
-      </div>
-    </section>
-    <!-- Hero Section End -->
+        <!-- single feature end (Left) -->
 
-    <!-- Hero Waves Start -->
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
-      <path
-        fill="#1a2634"
-        fill-opacity="1"
-        d="M0,288L24,261.3C48,235,96,181,144,154.7C192,128,240,128,288,149.3C336,171,384,213,432,202.7C480,192,528,128,576,133.3C624,139,672,213,720,213.3C768,213,816,139,864,101.3C912,64,960,64,1008,106.7C1056,149,1104,235,1152,240C1200,245,1248,171,1296,144C1344,117,1392,139,1416,149.3L1440,160L1440,0L1416,0C1392,0,1344,0,1296,0C1248,0,1200,0,1152,0C1104,0,1056,0,1008,0C960,0,912,0,864,0C816,0,768,0,720,0C672,0,624,0,576,0C528,0,480,0,432,0C384,0,336,0,288,0C240,0,192,0,144,0C96,0,48,0,24,0L0,0Z"
-      ></path>
-    </svg>
-    <!-- Hero Waves End -->
+        <!-- single feature start (Right) -->
+        <div class="single-feature">
+          <div class="columns mt-6">
+            <div class="column" data-aos="fade-right">
+              <img
+                class="image has-image-centered"
+                src="assets/img/features2.svg"
+                alt="feature1 img"
+                style="width: 23rem;"
+              />
+            </div>
+            <div class="column">
+              <h4 class="title">
+                Feature <span class="has-text-primary">#2</span>
+              </h4>
+              <p class="subtitle mt-3">
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat.
+              </p>
+            </div>
+          </div>
+        </div>
+        <!-- single feature end (Right) -->
 
-    <!-- Features Section Start -->
-    <section id="features" class="section mt-6">
-      <div class="has-text-centered">
-        <h1 class="title lined">Features</h1>
-        <div class="line line-center blurple"></div>
-      </div>
+        <!-- single feature start (Left) -->
+        <div class="single-feature">
+          <div class="columns mt-6">
+            <div class="column mr-6">
+              <h4 class="title">
+                Feature <span class="has-text-warning">#3</span>
+              </h4>
+              <p class="subtitle mt-3">
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat.
+              </p>
+            </div>
+            <div class="column" data-aos="fade-left">
+              <img
+                class="image has-image-centered"
+                src="assets/img/features3.svg"
+                alt="feature1 img"
+                style="width: 23rem;"
+              />
+            </div>
+          </div>
+        </div>
+        <!-- single feature end (Left) -->
 
-      <!-- single feature start (Left) -->
-      <div class="single-feature">
+        <!-- single feature start (Right) -->
+        <div class="single-feature">
+          <div class="columns mt-6">
+            <div class="column" data-aos="fade-right">
+              <img
+                class="image has-image-centered"
+                src="assets/img/features4.svg"
+                alt="feature1 img"
+                style="width: 23rem;"
+              />
+            </div>
+            <div class="column">
+              <h4 class="title">Feature <span class="has-text-info">#4</span></h4>
+              <p class="subtitle mt-3">
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat.
+              </p>
+            </div>
+          </div>
+        </div>
+        <!-- single feature end (Right) -->
+      </section>
+      <!-- Features Section End -->
+
+      <!-- Stats Section Start -->
+      <section id="stats" class="section mt-6">
+        <div class="has-text-centered">
+          <h1 class="title lined">Stats</h1>
+          <div class="line line-center blurple"></div>
+        </div>
+
         <div class="columns mt-6">
-          <div class="column mr-6">
-            <h4 class="title">Feature <span class="blurple">#1</span></h4>
-            <p class="subtitle mt-3">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat.
+          <div class="column has-text-centered">
+            <p class="title has-text-weight-bold lined">000</p>
+            <span class="subtitle has-text-weight-bold blurple"><i class="fa-solid fa-server"></i> Servers</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <p class="title has-text-weight-bold lined">000</p>
+            <span class="subtitle has-text-weight-bold blurple"><i class="fa-solid fa-terminal"></i> Commands</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <p class="title has-text-weight-bold lined">000</p>
+            <span class="subtitle has-text-weight-bold blurple"><i class="fa-solid fa-users"></i> Users</span>
+          </div>
+        </div>
+      </section>
+      <!-- Stats Section End -->
+
+      <!-- Invite Section Start -->
+      <section class="section mt-6">
+        <div class="columns">
+          <div class="column has-text-left">
+            <p class="title has-text-weight-bold">
+              Ready to try <span class="blurple">[your bot]</span>?
             </p>
-          </div>
-          <div class="column" data-aos="fade-left">
-            <img
-              class="image has-image-centered"
-              src="assets/img/features1.svg"
-              alt="feature1 img"
-              style="width: 23rem;"
-            />
-          </div>
-        </div>
-      </div>
-      <!-- single feature end (Left) -->
-
-      <!-- single feature start (Right) -->
-      <div class="single-feature">
-        <div class="columns mt-6">
-          <div class="column" data-aos="fade-right">
-            <img
-              class="image has-image-centered"
-              src="assets/img/features2.svg"
-              alt="feature1 img"
-              style="width: 23rem;"
-            />
-          </div>
-          <div class="column">
-            <h4 class="title">
-              Feature <span class="has-text-primary">#2</span>
-            </h4>
-            <p class="subtitle mt-3">
+            <p class="subtitle mt-3 has-text-gray">
               Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat.
+              eiusmod tempor incididunt ut labore et dolore magna aliqua.
             </p>
+            <a href="#" class="button is-blurple is-medium"><strong><i class="fa-solid fa-book"></i> Get Started</strong></a>
           </div>
-        </div>
-      </div>
-      <!-- single feature end (Right) -->
 
-      <!-- single feature start (Left) -->
-      <div class="single-feature">
-        <div class="columns mt-6">
-          <div class="column mr-6">
-            <h4 class="title">
-              Feature <span class="has-text-warning">#3</span>
-            </h4>
-            <p class="subtitle mt-3">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat.
-            </p>
+          <div class="column"></div>
+        </div>
+      </section>
+      <!-- Invite Section End -->
+
+      <!-- Footer Section Start -->
+      <footer class="footer bg-base">
+        <div class="content has-text-centered has-text-white">
+          <div class="mb-2">
+            <a href="#" class="has-text-white" target="_blank">
+              <i class="fa-brands fa-discord"></i>
+            </a>
+            &nbsp; &nbsp;
+            <a href="#" class="has-text-white" target="_blank">
+              <i class="fa-brands fa-github"></i>
+            </a>
           </div>
-          <div class="column" data-aos="fade-left">
-            <img
-              class="image has-image-centered"
-              src="assets/img/features3.svg"
-              alt="feature1 img"
-              style="width: 23rem;"
-            />
-          </div>
-        </div>
-      </div>
-      <!-- single feature end (Left) -->
 
-      <!-- single feature start (Right) -->
-      <div class="single-feature">
-        <div class="columns mt-6">
-          <div class="column" data-aos="fade-right">
-            <img
-              class="image has-image-centered"
-              src="assets/img/features4.svg"
-              alt="feature1 img"
-              style="width: 23rem;"
-            />
-          </div>
-          <div class="column">
-            <h4 class="title">Feature <span class="has-text-info">#4</span></h4>
-            <p class="subtitle mt-3">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat.
-            </p>
-          </div>
-        </div>
-      </div>
-      <!-- single feature end (Right) -->
-    </section>
-    <!-- Features Section End -->
-
-    <!-- Stats Section Start -->
-    <section id="stats" class="section mt-6">
-      <div class="has-text-centered">
-        <h1 class="title lined">Stats</h1>
-        <div class="line line-center blurple"></div>
-      </div>
-
-      <div class="columns mt-6">
-        <div class="column has-text-centered">
-          <p class="title has-text-weight-bold lined">000</p>
-          <span class="subtitle has-text-weight-bold blurple"><i class="fa-solid fa-server"></i> Servers</span>
-        </div>
-
-        <div class="column has-text-centered">
-          <p class="title has-text-weight-bold lined">000</p>
-          <span class="subtitle has-text-weight-bold blurple"><i class="fa-solid fa-terminal"></i> Commands</span>
-        </div>
-
-        <div class="column has-text-centered">
-          <p class="title has-text-weight-bold lined">000</p>
-          <span class="subtitle has-text-weight-bold blurple"><i class="fa-solid fa-users"></i> Users</span>
-        </div>
-      </div>
-    </section>
-    <!-- Stats Section End -->
-
-    <!-- Invite Section Start -->
-    <section class="section mt-6">
-      <div class="columns">
-        <div class="column has-text-left">
-          <p class="title has-text-weight-bold">
-            Ready to try <span class="blurple">[your bot]</span>?
+          <p>
+            <span class="has-text-weight-bold">[Your Bot]</span>
+            <br />
+            &copy; <span id="cp-year"></span> Copyright [Bot Owner]. All Rights
+            Reserved.
           </p>
-          <p class="subtitle mt-3 has-text-gray">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+          <p style="letter-spacing: 0.1em;" class="is-uppercase">
+            Website Designed By
+            <a
+              href="https://jstnlt.my.id"
+              class="blurple has-text-weight-bold"
+              target="_blank"
+              >JstnLT</a
+            >.<br />The Original Website Design is Open Source on <a
+              href="https://github.com/JastinXyz/discord-bot-landing-page-web"
+              class="blurple has-text-weight-bold"
+              target="_blank"
+              >Github</a
+            >
           </p>
-          <a href="#" class="button is-blurple is-medium"
-            ><strong><i class="fa-solid fa-book"></i> Get Started</strong></a
-          >
         </div>
-
-        <div class="column"></div>
-      </div>
-    </section>
-    <!-- Invite Section End -->
-
-    <!-- Footer Section Start -->
-    <footer class="footer bg-base">
-      <div class="content has-text-centered has-text-white">
-        <div class="mb-2">
-          <a href="#" class="has-text-white" target="_blank">
-            <i class="fa-brands fa-discord"></i>
-          </a>
-          &nbsp; &nbsp;
-          <a href="#" class="has-text-white" target="_blank">
-            <i class="fa-brands fa-github"></i>
-          </a>
-        </div>
-
-        <p>
-          <span class="has-text-weight-bold">[Your Bot]</span>
-          <br />
-          &copy; <span id="cp-year"></span> Copyright [Bot Owner]. All Rights
-          Reserved.
-        </p>
-
-        <p style="letter-spacing: 0.1em;" class="is-uppercase">
-          Website Designed By
-          <a
-            href="https://jstnlt.my.id"
-            class="blurple has-text-weight-bold"
-            target="_blank"
-            >JstnLT</a
-          >.<br>The Original Website Design is Open Source on <a
-            href="https://github.com/JastinXyz/discord-bot-landing-page-web"
-            class="blurple has-text-weight-bold"
-            target="_blank"
-            >Github</a
-          >
-        </p>
-      </div>
-    </footer>
-    <!-- Footer Section End -->
+      </footer>
+      <!-- Footer Section End -->
+    </div>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://unpkg.com/@popperjs/core@2"></script>
     <script src="https://unpkg.com/tippy.js@6"></script>
-    <script src="assets/js/script.js"></script>
+    <script>
+      (function () {
+        try {
+          const canvas = document.getElementById('matrixCanvas');
+          if (!canvas) return;
+          const ctx = canvas.getContext('2d');
+
+          const chars =
+            'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+          const chArr = chars.split('');
+          let fontSize = 16;
+          let drops = [];
+          let columns = 0;
+
+          function resize() {
+            const dpr = window.devicePixelRatio || 1;
+
+            const width = Math.floor(window.innerWidth * dpr);
+            const height = Math.floor(window.innerHeight * dpr);
+
+            canvas.width = width;
+            canvas.height = height;
+
+            canvas.style.width = window.innerWidth + 'px';
+            canvas.style.height = window.innerHeight + 'px';
+
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            fontSize = Math.max(12, Math.floor(Math.min(window.innerWidth, window.innerHeight) / 60));
+            columns = Math.floor(window.innerWidth / fontSize);
+
+            drops = Array.from({ length: columns }, () => Math.floor(Math.random() * -100));
+            ctx.font = fontSize + 'px monospace';
+            ctx.textBaseline = 'top';
+          }
+
+          function draw() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#00ff41';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+              const text = chArr[Math.floor(Math.random() * chArr.length)];
+              ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+              drops[i]++;
+
+              if (drops[i] * fontSize > window.innerHeight && Math.random() > 0.975) {
+                drops[i] = 0;
+              }
+            }
+
+            requestAnimationFrame(draw);
+          }
+
+          resize();
+          window.addEventListener('resize', resize);
+
+          requestAnimationFrame(draw);
+        } catch (err) {
+          console.error('Matrix init failed:', err);
+        }
+      })();
+
+      AOS.init({ duration: 1000, once: true });
+      tippy('[data-tippy-content]');
+
+      const backToTopButton = document.getElementById('backtotop');
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) backToTopButton.classList.add('visible');
+        else backToTopButton.classList.remove('visible');
+      });
+      backToTopButton &&
+        backToTopButton.addEventListener('click', () => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+      const navbarBurgers = Array.prototype.slice.call(
+        document.querySelectorAll('.navbar-burger'),
+        0
+      );
+      if (navbarBurgers.length > 0) {
+        navbarBurgers.forEach((el) => {
+          el.addEventListener('click', () => {
+            const target = el.dataset.target;
+            const targetMenu = document.getElementById(target);
+            el.classList.toggle('is-active');
+            targetMenu && targetMenu.classList.toggle('is-active');
+          });
+        });
+      }
+
+      const cp = document.getElementById('cp-year');
+      if (cp) cp.textContent = new Date().getFullYear();
+    </script>
   </body>
 </html>
