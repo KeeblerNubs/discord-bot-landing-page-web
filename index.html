@@ -137,6 +137,63 @@
                     <strong><i class="fa-solid fa-crown"></i> Premium</strong>
                   </a>
                 </div>
+                <div class="box mt-5 has-background-black-ter has-text-white">
+                  <p class="has-text-weight-semibold mb-2">
+                    Generate a single-use launch token
+                  </p>
+                  <p class="is-size-7 has-text-grey-light mb-3">
+                    Tokens are generated locally from your Discord ID and never sent
+                    to a server. Use the token once to launch the bot without exposing
+                    credentials.
+                  </p>
+                  <div class="field">
+                    <label class="label has-text-white is-size-7">Discord ID</label>
+                    <div class="control">
+                      <input
+                        id="discord-id"
+                        class="input is-dark"
+                        type="text"
+                        placeholder="e.g. 123456789012345678"
+                        autocomplete="off"
+                      />
+                    </div>
+                  </div>
+                  <div class="field is-grouped">
+                    <p class="control">
+                      <button id="generate-token" class="button is-info is-light">
+                        <strong>Generate Token</strong>
+                      </button>
+                    </p>
+                    <p class="control">
+                      <button id="launch-token" class="button is-success" disabled>
+                        <strong>Launch on Discord</strong>
+                      </button>
+                    </p>
+                  </div>
+                  <div class="field">
+                    <label class="label has-text-white is-size-7">Single-use token</label>
+                    <div class="control has-icons-right">
+                      <input
+                        id="token-output"
+                        class="input is-dark"
+                        type="text"
+                        readonly
+                        placeholder="Generate a token to continue"
+                      />
+                      <span class="icon is-small is-right">
+                        <i class="fa-solid fa-lock"></i>
+                      </span>
+                    </div>
+                    <p class="help is-size-7 has-text-grey-light">
+                      Copy the token and store it securely. It is revealed once per
+                      session.
+                    </p>
+                    <button id="copy-token" class="button is-small is-dark mt-2" disabled>
+                      <i class="fa-regular fa-copy mr-2"></i> Copy token
+                    </button>
+                    <p id="token-status" class="is-size-7 has-text-grey-light mt-2" aria-live="polite"></p>
+                  </div>
+                </div>
               </div>
               <div class="column mt-6" data-aos="fade-left">
                 <img
@@ -452,6 +509,96 @@
             el.classList.toggle('is-active');
             targetMenu && targetMenu.classList.toggle('is-active');
           });
+        });
+      }
+
+      const discordIdInput = document.getElementById('discord-id');
+      const generateTokenButton = document.getElementById('generate-token');
+      const tokenOutput = document.getElementById('token-output');
+      const copyTokenButton = document.getElementById('copy-token');
+      const launchTokenButton = document.getElementById('launch-token');
+      const tokenStatus = document.getElementById('token-status');
+
+      const updateTokenStatus = (message, isError = false) => {
+        if (!tokenStatus) return;
+        tokenStatus.textContent = message;
+        tokenStatus.classList.toggle('has-text-danger', isError);
+      };
+
+      const toBase64Url = (buffer) =>
+        btoa(String.fromCharCode(...new Uint8Array(buffer)))
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_')
+          .replace(/=+$/, '');
+
+      const buildToken = async (discordId) => {
+        const randomBytes = new Uint8Array(16);
+        crypto.getRandomValues(randomBytes);
+        const timestamp = Date.now().toString(36);
+        const payload = `${discordId}:${timestamp}:${toBase64Url(randomBytes)}`;
+        const hashBuffer = await crypto.subtle.digest(
+          'SHA-256',
+          new TextEncoder().encode(payload)
+        );
+        return `${timestamp}.${toBase64Url(hashBuffer).slice(0, 32)}`;
+      };
+
+      const setTokenControls = (isActive) => {
+        if (copyTokenButton) copyTokenButton.disabled = !isActive;
+        if (launchTokenButton) launchTokenButton.disabled = !isActive;
+      };
+
+      if (generateTokenButton) {
+        generateTokenButton.addEventListener('click', async () => {
+          if (!discordIdInput || !tokenOutput) return;
+          const discordId = discordIdInput.value.trim();
+          if (!/^\d{6,20}$/.test(discordId)) {
+            updateTokenStatus('Enter a valid numeric Discord ID.', true);
+            return;
+          }
+          try {
+            const token = await buildToken(discordId);
+            tokenOutput.value = token;
+            tokenOutput.dataset.generated = 'true';
+            setTokenControls(true);
+            updateTokenStatus('Token generated locally. Use it once to launch.', false);
+          } catch (error) {
+            console.error('Token generation failed:', error);
+            updateTokenStatus('Token generation failed. Try again.', true);
+          }
+        });
+      }
+
+      if (copyTokenButton) {
+        copyTokenButton.addEventListener('click', async () => {
+          if (!tokenOutput || !tokenOutput.value) return;
+          try {
+            await navigator.clipboard.writeText(tokenOutput.value);
+            updateTokenStatus('Token copied. It will be cleared after launch.', false);
+          } catch (error) {
+            console.error('Copy failed:', error);
+            updateTokenStatus('Copy failed. Select and copy manually.', true);
+          }
+        });
+      }
+
+      if (launchTokenButton) {
+        launchTokenButton.addEventListener('click', () => {
+          if (!tokenOutput || !tokenOutput.value) return;
+          const token = tokenOutput.value;
+          const clientId = 'YOUR_CLIENT_ID';
+          const baseUrl = 'https://discord.com/oauth2/authorize';
+          const params = new URLSearchParams({
+            client_id: clientId,
+            scope: 'bot applications.commands',
+            permissions: '0',
+            state: token,
+          });
+          window.open(`${baseUrl}?${params.toString()}`, '_blank', 'noopener');
+          tokenOutput.value = '';
+          tokenOutput.dataset.generated = '';
+          setTokenControls(false);
+          updateTokenStatus('Token used. Refresh to generate a new one.', false);
         });
       }
 
